@@ -1,0 +1,21 @@
+/* 임시 css */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.bottom-nav a {
+  text-decoration: none;
+  color: #666;
+}
+
+.bottom-nav a.active {
+  color: #0077ff;
+  font-weight: bold;
+}
