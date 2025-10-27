@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
-import useTodo from "../hooks/useTodo";
+import useTodo, { useAllTodos } from "../hooks/useTodo";
 import useWeather from "../hooks/useWeather";
 import TodoList from "../components/TodoList";
 import WeatherCard from "../components/WeatherCard";
@@ -16,8 +16,9 @@ export default function MonthlyPage() {
     selectedDate.getMonth() + 1
   ).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
 
-  const { todos, toggleTodo, snoozeTodo, addTodo } = useTodo(dateKey);
+  const { todos, addTodo, toggleTodo, snoozeTodo } = useTodo(dateKey);
   const { forecast } = useWeather("Seoul", 14);
+  const allTodos = useAllTodos(); 
   const navigate = useNavigate();
 
   const handleAddTodo = () => {
@@ -27,6 +28,10 @@ export default function MonthlyPage() {
     setShowInput(false);
   };
 
+  const todoDates = allTodos
+    .filter((d) => d.todos.length > 0)
+    .map((d) => d.date);
+
   return (
     <div style={{ padding: "16px" }}>
       <h2>월간 일정</h2>
@@ -34,6 +39,26 @@ export default function MonthlyPage() {
         onChange={setSelectedDate}
         value={selectedDate}
         calendarType="hebrew"
+        tileContent={({ date, view }) => {
+          if (view === "month") {
+            const formatted = `${date.getFullYear()}-${String(
+              date.getMonth() + 1
+            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+            const hasTodo = todoDates.includes(formatted);
+            return hasTodo ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  color: "tomato",
+                  fontSize: "1.2em",
+                  lineHeight: "0.8em",
+                }}
+              >
+                •
+              </div>
+            ) : null;
+          }
+        }}
       />
 
       <h3>선택 날짜 날씨</h3>
@@ -45,6 +70,7 @@ export default function MonthlyPage() {
       {!forecast.some((f) => f.date === dateKey.replace("todo-", "")) && (
         <p>🚀 예보가 아직 도착하지 않았어요!</p>
       )}
+
       <h3>선택 날짜 할 일</h3>
 
       {!showInput && (
