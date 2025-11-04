@@ -5,16 +5,14 @@ import useTodo from "../hooks/useTodo";
 import useWeather from "../hooks/useWeather";
 import TodoList from "../components/TodoList";
 import WeatherCard from "../components/WeatherCard";
+import WeatherNotice from "../components/WeatherNotice";
 
 export default function TodayPage() {
   const { todayDate, dayOfWeek, greeting } = useToday();
   const todayKey = `todo-${todayDate}`;
   const { todos, toggleTodo } = useTodo(todayKey);
-  const { weather, loading, error } = useWeather("Seoul", 3);
+  const { weather, forecast, loading, error } = useWeather(); // 위치 기반
   const navigate = useNavigate();
-
-  if (loading) return <div>Loading weather...</div>;
-  if (error) return <div>Error loading weather</div>;
 
   return (
     <div style={{ padding: "16px" }}>
@@ -24,13 +22,28 @@ export default function TodayPage() {
         {todayDate} ({dayOfWeek})
       </p>
 
-      {/* 오늘의 날씨 */}
-      <h3>오늘의 날씨</h3>
-      <WeatherCard data={weather} />
+      {/* 로딩 / 에러 처리 */}
+      {loading && <p>날씨 정보를 불러오는 중...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* 오늘 날씨 안내 */}
+      {weather?.current && <WeatherNotice weather={weather.current} />}
+
+      {/* 현재 지역 표시 */}
+      <p style={{ marginTop: "8px", fontWeight: "500" }}>
+        📍 현재 지역: {weather?.location?.name || "알 수 없음"}
+      </p>
+
+      {/* 오늘 날씨 카드 */}
+      {weather?.current && (
+        <>
+          <h3 style={{ marginTop: "16px" }}>오늘의 날씨</h3>
+          <WeatherCard data={weather.current} />
+        </>
+      )}
 
       {/* 오늘의 할 일 */}
-      <h3>오늘의 할 일</h3>
-
+      <h3 style={{ marginTop: "16px" }}>오늘의 할 일</h3>
       {todos.length === 0 ? (
         <div style={{ marginTop: "8px" }}>
           <p>오늘 할 일이 없습니다.</p>

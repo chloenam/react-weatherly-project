@@ -20,7 +20,7 @@ export default function useToday() {
 
     const hour = now.getHours();
     if (hour < 12) setGreeting("좋은 아침이에요 🌞");
-    else if (hour < 18) setGreeting("좋은 오후에요 🌤");
+    else if (hour < 18) setGreeting("좋은 오후에요 🌤️");
     else setGreeting("좋은 저녁이에요 🌙");
   }, []);
 
