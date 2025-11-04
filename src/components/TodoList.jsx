@@ -7,8 +7,11 @@ export default function TodoList({
   onToggle,
   onDelete,
   onSnooze,
+  hideEmptyMessage = false,
 }) {
-  if (!todos || todos.length === 0) return null;
+  if (!todos?.length) {
+    return hideEmptyMessage ? null : <p>할 일이 없습니다.</p>;
+  }
 
   return (
     <ul style={{ paddingLeft: 0, listStyle: "none" }}>
@@ -22,24 +25,53 @@ export default function TodoList({
             textDecoration: todo.done ? "line-through" : "none",
           }}
         >
+          {/* 항상 클릭으로 완료 토글 가능 (onToggle이 제공될 때만) */}
           <span
-            style={{ flex: 1, cursor: editable ? "default" : "pointer" }}
-            onClick={!editable ? () => onToggle(index) : undefined}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && onToggle) {
+                onToggle(index);
+              }
+            }}
+            onClick={() => onToggle && onToggle(index)}
+            style={{
+              flex: 1,
+              cursor: onToggle ? "pointer" : "default",
+              userSelect: "none",
+            }}
+            aria-pressed={!!todo.done}
           >
             {todo.text}
           </span>
 
+          {/* 버튼은 editable 플래그로 제어 */}
           {editable && (
             <>
-              <button onClick={() => onDelete(index)}>삭제</button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete && onDelete(index);
+                }}
+                aria-label={`삭제 ${todo.text}`}
+              >
+                삭제
+              </button>
+
               {showSnooze && (
-                <button onClick={() => onSnooze(index)}>내일로</button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSnooze && onSnooze(index);
+                  }}
+                  aria-label={`내일로 ${todo.text}`}
+                >
+                  내일로
+                </button>
               )}
             </>
-          )}
-
-          {!editable && showSnooze && (
-            <button onClick={() => onToggle(index)}>완료</button>
           )}
         </li>
       ))}

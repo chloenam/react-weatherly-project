@@ -1,157 +1,168 @@
 import React, { useState } from "react";
-import useRoutines from "../hooks/useRoutines";
 import { useAllTodos } from "../hooks/useTodo";
+import useRoutines from "../hooks/useRoutines";
 import TodoList from "../components/TodoList";
 
 export default function TodoPage() {
-  const { routines, addRoutine, deleteRoutine, toggleRoutine } = useRoutines();
-  const allTodos = useAllTodos();
+  const todayDate = new Date().toISOString().split("T")[0];
+  const {
+    allTodos,
+    addTodoToDate,
+    toggleTodo,
+    deleteTodo,
+    snoozeTodo,
+    getTodos,
+  } = useAllTodos();
 
-  const [newRoutineText, setNewRoutineText] = useState("");
-  const [showRoutineInput, setShowRoutineInput] = useState(false);
+  const { routines, addRoutine, deleteRoutine, toggleRoutine } = useRoutines();
   const [newTodoText, setNewTodoText] = useState("");
   const [showTodoInput, setShowTodoInput] = useState(false);
+  const [newRoutineText, setNewRoutineText] = useState("");
+  const [showRoutineInput, setShowRoutineInput] = useState(false);
 
-  const todayKey = new Date().toISOString().split("T")[0];
+  const todayTodos = getTodos(todayDate);
+
+  const handleAddToday = () => {
+    if (!newTodoText.trim()) return;
+    addTodoToDate(todayDate, newTodoText);
+    setNewTodoText("");
+    setShowTodoInput(false);
+  };
+
+  // 분류
+  const past = allTodos.filter(
+    ({ date }) => date < todayDate && date && getTodos(date).length > 0
+  );
+  const future = allTodos.filter(
+    ({ date }) => date > todayDate && date && getTodos(date).length > 0
+  );
+
+  // 정렬
+  past.sort((a, b) => (a.date < b.date ? 1 : -1));
+  future.sort((a, b) => (a.date > b.date ? 1 : -1));
 
   const handleAddRoutine = () => {
-    if (newRoutineText.trim() === "") return;
+    if (!newRoutineText.trim()) return;
     addRoutine(newRoutineText);
     setNewRoutineText("");
     setShowRoutineInput(false);
   };
 
-  const handleAddTodo = (date) => {
-    if (newTodoText.trim() === "") return;
-    const todos = JSON.parse(localStorage.getItem(`todo-${date}`)) || [];
-    todos.push({ text: newTodoText, done: false });
-    localStorage.setItem(`todo-${date}`, JSON.stringify(todos));
-    setNewTodoText("");
-    setShowTodoInput(false);
-  };
-
   return (
-    <div style={{ padding: "16px" }}>
-      <h2>전체 할 일</h2>
+    <div style={{ padding: "20px", maxWidth: 700, margin: "0 auto" }}>
+      <h2>📒 Todo List</h2>
 
-      {/* Todo 추가 안내 */}
-      {allTodos.length === 0 && !showTodoInput && (
-        <div style={{ marginBottom: "16px" }}>
-          <p>Todo가 없습니다.</p>
-          <button onClick={() => setShowTodoInput(true)}>
-            Todo 리스트 추가해보세요!
-          </button>
-        </div>
-      )}
+      {/* 오늘 섹션 */}
+      <section style={{ marginBottom: 28 }}>
+        <h3>🔥 오늘의 할 일 ({todayDate})</h3>
 
-      {showTodoInput && (
-        <div style={{ marginBottom: "16px" }}>
-          <input
-            type="text"
-            value={newTodoText}
-            onChange={(e) => setNewTodoText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddTodo(todayKey)}
-            placeholder="새 Todo 입력 후 Enter"
-            autoFocus
-          />
-          <button onClick={() => handleAddTodo(todayKey)}>저장</button>
-          <button onClick={() => setShowTodoInput(false)}>취소</button>
-        </div>
-      )}
-
-      {allTodos.map(({ date, todos }) => {
-        const completedRatio = todos.length
-          ? Math.round(
-              (todos.filter((t) => t.done).length / todos.length) * 100
-            )
-          : 0;
-
-        return (
-          <div key={date} style={{ marginBottom: "24px" }}>
-            <h3>{date} 할 일</h3>
-
-            {todos.length > 0 && (
-              <div style={{ marginBottom: "8px" }}>
-                <div
-                  style={{
-                    background: "#eee",
-                    height: "8px",
-                    borderRadius: "4px",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${completedRatio}%`,
-                      background: "#4caf50",
-                      height: "100%",
-                      borderRadius: "4px",
-                    }}
-                  ></div>
-                </div>
-                <small>{completedRatio}% 완료</small>
-              </div>
-            )}
-
-            <TodoList
-              todos={todos}
-              editable={true}
-              showSnooze={true}
-              onToggle={(index) => {
-                todos[index].done = !todos[index].done;
-                localStorage.setItem(`todo-${date}`, JSON.stringify(todos));
-              }}
-              onDelete={(index) => {
-                todos.splice(index, 1);
-                localStorage.setItem(`todo-${date}`, JSON.stringify(todos));
-              }}
-              onSnooze={(index) => {
-                const tomorrow = new Date(date);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const newKey = `todo-${tomorrow.toISOString().split("T")[0]}`;
-                const todoToMove = todos.splice(index, 1)[0];
-                const targetTodos =
-                  JSON.parse(localStorage.getItem(newKey)) || [];
-                targetTodos.push(todoToMove);
-                localStorage.setItem(newKey, JSON.stringify(targetTodos));
-                localStorage.setItem(`todo-${date}`, JSON.stringify(todos));
-              }}
+        {showTodoInput ? (
+          <div style={{ marginBottom: 8 }}>
+            <input
+              value={newTodoText}
+              onChange={(e) => setNewTodoText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddToday()}
+              placeholder="새 Todo 입력 후 Enter"
+              autoFocus
             />
+            <button onClick={handleAddToday}>추가</button>
+            <button onClick={() => setShowTodoInput(false)}>취소</button>
           </div>
-        );
-      })}
+        ) : (
+          <button onClick={() => setShowTodoInput(true)}>오늘 Todo 추가</button>
+        )}
 
-      <h3>루틴</h3>
-
-      {!showRoutineInput && (
-        <div style={{ marginBottom: "8px" }}>
-          {routines.length === 0 && <p>루틴이 없습니다.</p>}
-          <button onClick={() => setShowRoutineInput(true)}>
-            매일 실행할 루틴을 추가해보세요!
-          </button>
-        </div>
-      )}
-
-      {showRoutineInput && (
-        <div style={{ marginBottom: "8px" }}>
-          <input
-            type="text"
-            value={newRoutineText}
-            onChange={(e) => setNewRoutineText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddRoutine()}
-            placeholder="루틴 입력 후 Enter"
-            autoFocus
+        {todayTodos.length > 0 ? (
+          <TodoList
+            todos={todayTodos}
+            editable
+            showSnooze
+            onToggle={(i) => toggleTodo(todayDate, i)}
+            onDelete={(i) => deleteTodo(todayDate, i)}
+            onSnooze={(i) => snoozeTodo(todayDate, i)}
           />
-          <button onClick={handleAddRoutine}>저장</button>
-          <button onClick={() => setShowRoutineInput(false)}>취소</button>
-        </div>
+        ) : (
+          <p style={{ color: "#666" }}>할 일이 없습니다.</p>
+        )}
+      </section>
+
+      {/* 과거 섹션 */}
+      {past.length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h3>⏰ 놓친 할 일</h3>
+          {past.map(({ date, todos }) => (
+            <div key={date} style={{ marginBottom: 12 }}>
+              <strong style={{ display: "block", marginBottom: 6 }}>
+                {date}
+              </strong>
+              <TodoList
+                todos={todos}
+                editable
+                showSnooze
+                onToggle={(i) => toggleTodo(date, i)}
+                onDelete={(i) => deleteTodo(date, i)}
+                onSnooze={(i) => snoozeTodo(date, i)}
+                hideEmptyMessage
+              />
+            </div>
+          ))}
+        </section>
       )}
 
-      <TodoList
-        todos={routines}
-        editable={true}
-        onToggle={toggleRoutine}
-        onDelete={deleteRoutine}
-      />
+      {/* 미래 섹션 */}
+      {future.length > 0 && (
+        <section style={{ marginBottom: 28 }}>
+          <h3>🚀 다가오는 할 일</h3>
+          {future.map(({ date, todos }) => (
+            <div key={date} style={{ marginBottom: 12 }}>
+              <strong style={{ display: "block", marginBottom: 6 }}>
+                {date}
+              </strong>
+              <TodoList
+                todos={todos}
+                editable
+                showSnooze
+                onToggle={(i) => toggleTodo(date, i)}
+                onDelete={(i) => deleteTodo(date, i)}
+                onSnooze={(i) => snoozeTodo(date, i)}
+                hideEmptyMessage
+              />
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* ✅ 루틴 섹션 */}
+      <section style={{ marginBottom: 28 }}>
+        <h2>🔁 Routines</h2>
+
+        {showRoutineInput ? (
+          <div style={{ marginBottom: 8 }}>
+            <input
+              value={newRoutineText}
+              onChange={(e) => setNewRoutineText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddRoutine()}
+              placeholder="새 루틴 입력 후 Enter"
+              autoFocus
+            />
+            <button onClick={handleAddRoutine}>추가</button>
+            <button onClick={() => setShowRoutineInput(false)}>취소</button>
+          </div>
+        ) : (
+          <button onClick={() => setShowRoutineInput(true)}>루틴 추가</button>
+        )}
+
+        {routines.length > 0 ? (
+          <TodoList
+            todos={routines}
+            editable
+            onToggle={(_, i) => toggleRoutine(i)}
+            onDelete={(_, i) => deleteRoutine(i)}
+          />
+        ) : (
+          <p style={{ color: "#666" }}>등록된 루틴이 없습니다.</p>
+        )}
+      </section>
     </div>
   );
 }

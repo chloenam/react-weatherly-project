@@ -15,9 +15,10 @@ export default function TodayPage() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ padding: "16px" }}>
+    <div style={{ padding: "16px", maxWidth: 700, margin: "0 auto" }}>
       {/* 인사말 + 날짜 */}
-      <h2>{greeting}</h2>
+      <h2>✨ Today</h2>
+      <h3>{greeting}</h3>
       <p>
         {todayDate} ({dayOfWeek})
       </p>
@@ -29,15 +30,14 @@ export default function TodayPage() {
       {/* 오늘 날씨 안내 */}
       {weather?.current && <WeatherNotice weather={weather.current} />}
 
-      {/* 현재 지역 표시 */}
-      <p style={{ marginTop: "8px", fontWeight: "500" }}>
-        📍 현재 지역: {weather?.location?.name || "알 수 없음"}
-      </p>
-
       {/* 오늘 날씨 카드 */}
       {weather?.current && (
         <>
           <h3 style={{ marginTop: "16px" }}>오늘의 날씨</h3>
+          {/* 현재 지역 표시 */}
+          <p style={{ marginTop: "8px", fontWeight: "500" }}>
+            📍 현재 지역: {weather?.location?.name || "알 수 없음"}
+          </p>
           <WeatherCard data={weather.current} />
         </>
       )}
