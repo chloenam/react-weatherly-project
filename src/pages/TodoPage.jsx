@@ -156,8 +156,8 @@ export default function TodoPage() {
           <TodoList
             todos={routines}
             editable
-            onToggle={(_, i) => toggleRoutine(i)}
-            onDelete={(_, i) => deleteRoutine(i)}
+            onToggle={(i) => toggleRoutine(i)}
+            onDelete={(i) => deleteRoutine(i)}
           />
         ) : (
           <p style={{ color: "#666" }}>등록된 루틴이 없습니다.</p>
