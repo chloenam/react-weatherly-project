@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 
+// ✅ 한국 시간(KST) 기준 날짜 문자열로 변환하는 헬퍼
+function formatDateKST(date) {
+  const kst = new Date(date.getTime() + 9 * 60 * 60 * 1000); // UTC → KST 변환
+  return kst.toISOString().split("T")[0]; // "YYYY-MM-DD"
+}
+
+// ✅ 단일 날짜용 훅
 export default function useTodo(key) {
-  // 기존 코드 유지 — 현재 컴포넌트에서 today 전용 남겨두기
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
@@ -32,10 +38,11 @@ export default function useTodo(key) {
     const todo = todos[index];
     if (!todo) return;
 
-    // 다음 날짜 키 구하기
+    // ✅ 다음 날짜 (KST 기준)
     const current = new Date(key.replace("todo-", ""));
     current.setDate(current.getDate() + 1);
-    const nextKey = `todo-${current.toISOString().split("T")[0]}`;
+    const nextKey = `todo-${formatDateKST(current)}`;
+
     const nextTodos = JSON.parse(localStorage.getItem(nextKey)) || [];
     nextTodos.push(todo);
     localStorage.setItem(nextKey, JSON.stringify(nextTodos));
@@ -46,11 +53,11 @@ export default function useTodo(key) {
   return { todos, addTodo, deleteTodo, toggleTodo, snoozeTodo };
 }
 
-// 모든 날짜와 날짜별 조작 함수를 제공하는 훅
+// ✅ 모든 날짜의 Todo 관리 훅
 export function useAllTodos() {
   const [allTodos, setAllTodos] = useState([]); // [{date, todos}, ...]
 
-  // 로컬스토리지에서 모든 todo- 키를 읽어 상태로 세팅
+  // ✅ 로컬스토리지에서 todo- 키 전체 읽기
   const readAllFromStorage = () => {
     const allKeys = Object.keys(localStorage).filter((k) =>
       k.startsWith("todo-")
@@ -61,7 +68,7 @@ export function useAllTodos() {
       return { date: k.replace("todo-", ""), todos };
     });
 
-    // 정렬: 최신 날짜가 위로 오도록 (옵션, 필요시 변경)
+    // 최신 날짜가 위로 오도록 정렬
     result.sort((a, b) => (a.date < b.date ? 1 : -1));
     return result;
   };
@@ -69,7 +76,7 @@ export function useAllTodos() {
   useEffect(() => {
     setAllTodos(readAllFromStorage());
 
-    // storage 이벤트로 다른 탭에서 변경될 때 반영 (선택 사항)
+    // ✅ 다른 탭에서도 동기화
     const onStorage = (e) => {
       if (e.key && e.key.startsWith("todo-")) {
         setAllTodos(readAllFromStorage());
@@ -79,16 +86,16 @@ export function useAllTodos() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // helper: 특정 날짜 키
+  // ✅ 날짜 키 생성 헬퍼
   const keyFor = (date) => `todo-${date}`;
 
-  // save and refresh state
+  // ✅ 저장 후 전체 리프레시
   const saveForDate = (date, todos) => {
     localStorage.setItem(keyFor(date), JSON.stringify(todos));
     setAllTodos(readAllFromStorage());
   };
 
-  // 조작 함수들 (date 인자 사용)
+  // ✅ 조작 함수들
   const addTodoToDate = (date, text) => {
     if (!text?.trim()) return;
     const key = keyFor(date);
@@ -118,34 +125,32 @@ export function useAllTodos() {
     const todo = todos[index];
     if (!todo) return;
 
-    // 다음날로 이동
+    // ✅ 다음날로 이동 (KST 기준)
     const current = new Date(date);
     current.setDate(current.getDate() + 1);
-    const nextDate = current.toISOString().split("T")[0];
+    const nextDate = formatDateKST(current);
     const nextKey = keyFor(nextDate);
+
     const nextTodos = JSON.parse(localStorage.getItem(nextKey)) || [];
     nextTodos.push(todo);
     localStorage.setItem(nextKey, JSON.stringify(nextTodos));
 
-    // 현재에서 제거
+    // ✅ 현재 날짜에서 삭제
     todos.splice(index, 1);
     saveForDate(date, todos);
   };
 
-  // 특정 날짜의 todos를 바로 읽어오고 싶을 때 (동기적)
+  // ✅ 특정 날짜 Todo 가져오기
   const getTodos = (date) => {
     return JSON.parse(localStorage.getItem(keyFor(date))) || [];
   };
 
-  // 모든 Todo 초기화
+  // ✅ 모든 Todo 초기화
   const resetTodos = () => {
-    // 모든 todo- 키 삭제
     Object.keys(localStorage)
       .filter((k) => k.startsWith("todo-"))
       .forEach((k) => localStorage.removeItem(k));
-
-    // 상태 초기화
-    setAllTodos([]); // allTodos 상태도 초기화
+    setAllTodos([]);
   };
 
   return {

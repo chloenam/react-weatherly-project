@@ -9,6 +9,8 @@ html, body {
 }
 
 body {
+  position: sticky;
+  bottom: 0;
   font-family: 'Pretendard', sans-serif;
   font-family: "Montserrat", sans-serif;
 }

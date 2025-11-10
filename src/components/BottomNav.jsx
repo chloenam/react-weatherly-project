@@ -13,7 +13,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <GlassContainer className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[80%] max-w-md z-10">
+    <GlassContainer className="fixed left-1/2 transform -translate-x-1/2 w-[80%] max-w-md z-10">
       <nav className="flex justify-around py-2 px-4">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;

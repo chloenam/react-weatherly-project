@@ -8,7 +8,7 @@ import { FiPlus, FiX } from "react-icons/fi";
 import TodoErrorBoundary from "./TodoErrorBoundary";
 
 export default function TodoPage() {
-  const todayDate = new Date().toISOString().split("T")[0];
+  const todayDate = new Date().toLocaleDateString("en-CA");
   const {
     allTodos,
     addTodoToDate,
