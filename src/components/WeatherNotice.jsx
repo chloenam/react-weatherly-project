@@ -14,13 +14,13 @@ export default function WeatherNotice({ weather, isForecast = false }) {
 
   // 🌂 우산 안내
   if (/Rain|Showers|Drizzle/i.test(condition)) {
-    notice += "☔ 오늘은 비가 예상돼요. 우산 챙기세요! ";
+    notice += "☔\n오늘은 비가 예상돼요.\n우산 챙기세요!\n";
   } else if (/Snow/i.test(condition)) {
-    notice += "❄️ 오늘은 눈이 올 수 있어요. 따뜻하게 입고 미끄럼 주의!";
+    notice += "❄️\n오늘은 눈이 올 수 있어요.\n따뜻하게 입고 미끄럼 주의!\n";
   } else if (/Fog|Mist/i.test(condition)) {
-    notice += "🌫️ 안개/안개비 주의! 운전 시 조심하세요. ";
+    notice += "🌫️\n안개/안개비 주의!\n운전 시 조심하세요.\n";
   } else {
-    notice += "🌞 오늘은 맑아요. 우산은 필요 없어요! ";
+    notice += "🌞\n오늘은 맑아요.\n우산은 필요 없어요!\n";
   }
 
   // 🧥 옷차림 안내
@@ -32,15 +32,7 @@ export default function WeatherNotice({ weather, isForecast = false }) {
   else notice += "반팔/반바지 가능!";
 
   return (
-    <div
-      style={{
-        padding: "12px",
-        marginBottom: "16px",
-        backgroundColor: "#f0f8ff",
-        borderRadius: "8px",
-        fontSize: "0.95rem",
-      }}
-    >
+    <div className="text-sm rounded-lg w-full whitespace-pre-line text-center">
       {notice}
     </div>
   );

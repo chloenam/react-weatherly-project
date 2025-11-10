@@ -137,6 +137,17 @@ export function useAllTodos() {
     return JSON.parse(localStorage.getItem(keyFor(date))) || [];
   };
 
+  // 모든 Todo 초기화
+  const resetTodos = () => {
+    // 모든 todo- 키 삭제
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("todo-"))
+      .forEach((k) => localStorage.removeItem(k));
+
+    // 상태 초기화
+    setAllTodos([]); // allTodos 상태도 초기화
+  };
+
   return {
     allTodos,
     addTodoToDate,
@@ -145,5 +156,6 @@ export function useAllTodos() {
     snoozeTodo,
     getTodos,
     refresh: () => setAllTodos(readAllFromStorage()),
+    resetTodos,
   };
 }

@@ -15,7 +15,6 @@ export default function useWeather(defaultCity = "Seoul", days = 3) {
         setWeather(current);
         setForecast(forecastData);
         setError(null);
-        console.log("✅ forecastData:", forecastData);
       } catch (err) {
         console.error("Weather fetch failed:", err);
         setError("날씨 정보를 불러오는 중 오류가 발생했습니다.");

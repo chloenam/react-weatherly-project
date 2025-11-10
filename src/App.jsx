@@ -46,8 +46,10 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div style={{ paddingBottom: "60px" }}>
-      <RouterProvider router={router} />
+    <div className="min-h-screen bg-gradient-to-b from-[#576231] via-[#22222d] to-[#1b1f45] text-white">
+      <div className="pb-[25%]">
+        <RouterProvider router={router} />
+      </div>
     </div>
   );
 }

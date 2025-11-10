@@ -15,13 +15,13 @@ export default function useToday() {
     setTodayDate(`${y}-${m}-${d}`);
 
     // 요일
-    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     setDayOfWeek(weekdays[now.getDay()]);
 
     const hour = now.getHours();
-    if (hour < 12) setGreeting("좋은 아침이에요 🌞");
-    else if (hour < 18) setGreeting("좋은 오후에요 🌤️");
-    else setGreeting("좋은 저녁이에요 🌙");
+    if (hour < 12) setGreeting("Good morning\n🌞");
+    else if (hour < 18) setGreeting("Good afternoon\n🌤️");
+    else setGreeting("Good evening\n🌙");
   }, []);
 
   return { todayDate, dayOfWeek, greeting };
