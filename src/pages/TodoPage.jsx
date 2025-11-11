@@ -7,6 +7,11 @@ import GlassContainer from "../components/GlassContainer";
 import { FiPlus, FiX } from "react-icons/fi";
 import TodoErrorBoundary from "./TodoErrorBoundary";
 
+// error 확인용
+// function TodoChild() {
+//   throw new Error("하위 컴포넌트 테스트 에러");
+// }
+
 export default function TodoPage() {
   const todayDate = new Date().toLocaleDateString("en-CA");
   const {
@@ -221,6 +226,7 @@ export default function TodoPage() {
             <p className="text-white/70">등록된 루틴이 없습니다.</p>
           )}
         </GlassContainer>
+        {/* <TodoChild/> */}
       </div>
     </TodoErrorBoundary>
   );
